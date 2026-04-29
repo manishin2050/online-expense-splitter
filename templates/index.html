@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Online Expense Splitter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <style>
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      /* black → white */
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-700 ">
+  <!-- Navbar -->
+  <nav class=" fixed w-full bg-white shadow dark:bg-gray-900 ">
+    <div class="container mx-auto flex items-center justify-between px-4 py-3">
+      <a href="{% url 'khata:index' %}" class="text-lg font-semibold text-gray-800 dark:text-gray-200">O.E.S.</a>
+
+
+
+      <div class="pl-20 w-1/2  shadow-md  flex justify-around items-center hidden md:flex">
+        <!-- Home -->
+        <a href="{% url 'khata:index' %}"
+          class="hover:text-blue-600 flex flex-col items-center text-gray-600 dark:text-gray-300">
+          <i data-feather="home" class="w-6 h-6"></i>
+          <span class="text-xs">Home</span>
+        </a>
+
+        <!-- Shop -->
+        {% if user.is_authenticated and request.resolver_match.url_name != "admin_page" and request.resolver_match.url_name != "download" and request.resolver_match.url_name != "home" %}
+        <a href="{% url 'khata:shopping' %}"
+          class="hover:text-blue-600 flex flex-col items-center text-gray-600 dark:text-gray-300">
+          <i data-feather="shopping-bag" class="w-6 h-6"></i>
+          <span class="text-xs">Shop</span>
+        </a>
+        {% elif request.resolver_match.url_name != "admin_page" and request.resolver_match.url_name != "download"  and request.resolver_match.url_name != "home" %}
+        <a href="{% url 'khata:login' %}"
+          class="hover:text-blue-600 flex flex-col items-center text-gray-600 dark:text-gray-300">
+          <i data-feather="shopping-bag" class="w-6 h-6"></i>
+          <span class="text-xs">Shop</span>
+        </a>
+        {% endif %}
+
+
+
+        <!-- Search -->
+        {% if user.is_authenticated and request.resolver_match.url_name != "profile" and request.resolver_match.url_name != "download" and request.resolver_match.url_name != "admin_page" and request.resolver_match.url_name != "index"  %}
+        <a href="#" id="remove_form_hidden_plus2_1"
+          class="hover:text-blue-600 flex flex-col items-center text-gray-600 dark:text-gray-300">
+          <i data-feather="search" class="w-6 h-6"></i>
+          <span class="text-xs">Search</span>
+        </a>
+
+        {% endif %}
+        <!-- User -->
+        {% if user.is_authenticated and request.resolver_match.url_name != "admin_page" and request.resolver_match.url_name != "index" %}
+        <a 
+        {% block user_block %}
+        href="{% url 'khata:index' %}"
+        {% endblock user_block %}
+          class="hover:text-blue-600 flex flex-col items-center text-gray-600 dark:text-gray-200">
+          <i data-feather="user" class="w-6 h-6"></i>
+          <span class="text-xs">Profile</span>
+        </a>
+        {% elif  request.resolver_match.url_name != "admin_page" and request.resolver_match.url_name != "index" %}
+        <a href="{% url 'khata:login' %}"
+          class="hover:text-blue-600 flex flex-col items-center text-gray-600 dark:text-gray-200">
+          <i data-feather="user" class="w-6 h-6"></i>
+          <span class="text-xs">Profile</span>
+        </a>
+        {% endif %}
+      </div>
+
+
+
+
+      <div>
+        {% if user.is_authenticated %}
+        <span class="mr-4 text-gray-700 dark:text-gray-200">Hi, {{ user.username|capfirst }}</span>
+        <form action="{% url 'khata:logout' %}" method="post" class="inline">
+          {% csrf_token %}
+          <button type="submit"
+            class="px-3 py-1 text-sm border border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white transition">
+            Logout
+          </button>
+        </form>
+        {% else %}
+        <a href="{% url 'khata:login' %}"
+          class="px-3 py-1 text-sm border border-blue-500 text-blue-500 rounded hover:bg-blue-500 hover:text-white transition">
+          Login
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container mx-auto px-4 py-6">
+    {% block content %}
+    <div class=" mt-20">
+      <div class=" button mb-4">
+      <span  class="  px-4 py-3 dark:text-white md:text-xl text-md shadow-lg shadow-indigo-600/20 ">
+        All Groups
+      </span>
+
+  </div>
+
+    </div>
+    {% if groups %}
+    <div class="grid grid-cols-1 gap-3 h-full md:grid-cols-2 lg:grid-cols-3 mb-20">
+    {% for group in groups %}
+    <a href={% url 'khata:home' group.id %} class="bg-white mt-6 dark:bg-gray-900 shadow rounded-lg p-6 ">
+      <h1 class="text-2xl font-semibold dark:text-white">{{group.name | capfirst}}</h1>
+      <p class="text-indigo-600  font-bold">{{group.created_by | capfirst}}<span class="dark:text-gray-200 text-black text-sm" > (Admin)</span></p>
+    </a>
+    {% endfor %}
+    {% if  user.is_authenticated  %}
+    <a href="{% url 'khata:create_group' %}"  class="bg-white mt-6 dark:bg-gray-900 shadow rounded-lg p-6 ">
+     <h1 class="text-2xl flex justify-center font-semibold text-indigo-600 "><i data-feather="plus" class="w-6 h-6 border border-white rounded-full"></i></h1>
+     
+     <p class="dark:text-white font-bold mx-auto w-full flex justify-center ">Create New Group</p>
+   </a>
+   {% else %}
+    <a href="{% url 'khata:login' %}"  class="bg-white mt-6 dark:bg-gray-900 shadow rounded-lg p-6 ">
+     <h1 class="text-2xl flex justify-center font-semibold text-indigo-600 "><i data-feather="plus" class="w-6 h-6 border border-white rounded-full"></i></h1>
+     
+     <p class="dark:text-white font-bold mx-auto w-full flex justify-center ">Create New Group</p>
+   </a>
+   {% endif %}
+  </div>
+  {% else %}
+  
+  <div class="grid grid-cols-1 gap-3 h-full md:grid-cols-2 lg:grid-cols-3 mb-20">
+  {% if  user.is_authenticated  %}
+    <a href="{% url 'khata:create_group' %}"  class="bg-white mt-6 dark:bg-gray-900 shadow rounded-lg p-6 ">
+     <h1 class="text-2xl flex justify-center font-semibold text-indigo-600 "><i data-feather="plus" class="w-6 h-6 border border-white rounded-full"></i></h1>
+     
+     <p class="dark:text-white font-bold mx-auto w-full flex justify-center ">Create New Group</p>
+   </a>
+   {% else %}
+    <a href="{% url 'khata:login' %}"  class="bg-white mt-6 dark:bg-gray-900 shadow rounded-lg p-6 ">
+     <h1 class="text-2xl flex justify-center font-semibold text-indigo-600 "><i data-feather="plus" class="w-6 h-6 border border-white rounded-full"></i></h1>
+     
+     <p class="dark:text-white font-bold mx-auto w-full flex justify-center ">Create New Group</p>
+   </a>
+   {% endif %}
+  </div>
+
+    {% endif %}
+{% endblock %}
+  </div>
+
+
+
+  <!-- Mobile Footer -->
+  <div
+    class="fixed bottom-0 left-0 w-full bg-white shadow-md dark:bg-gray-900 flex justify-around items-center py-2 md:hidden">
+    <!-- Home -->
+    <a href="{% url 'khata:index' %}"
+      class="hover:text-blue-600 flex flex-col items-center text-gray-600 dark:text-gray-300">
+      <i data-feather="home" class="w-6 h-6"></i>
+      <span class="text-xs">Home</span>
+    </a>
+
+    <!-- Shop -->
+    {% if user.is_authenticated and request.resolver_match.url_name != "admin_page" and request.resolver_match.url_name != "download" and request.resolver_match.url_name != "home" %}
+    <a href="{% url 'khata:shopping' %}"
+      class="hover:text-blue-600 flex flex-col items-center text-gray-600 dark:text-gray-300">
+      <i data-feather="shopping-bag" class="w-6 h-6"></i>
+      <span class="text-xs">Shop</span>
+    </a>
+
+    {% endif %}
+
+
+    <!-- Add (Big Button in Center, floating up a little) -->
+    {% if user.is_authenticated and request.resolver_match.url_name != "profile" and request.resolver_match.url_name != "admin_page" and request.resolver_match.url_name != "index"  %}
+    <a href="#" id="remove_form_hidden_plus"
+      class="relative -top-4 bg-blue-600 p-4 border border-gray-700 dark:border-gray-200 border-t-0 rounded-full shadow-lg text-white hover:rotate-90 hover:bg-red-500 transform transition-transform duration-600">
+      <i data-feather="plus" class="w-6 h-6"></i>
+    </a>
+
+    {% endif %}
+    <!-- Search -->
+    {% if user.is_authenticated and request.resolver_match.url_name != "profile" and request.resolver_match.url_name != "download" and request.resolver_match.url_name != "admin_page" and request.resolver_match.url_name != "index"  %}
+    <a href="#" id="remove_form_hidden_plus2"
+      class="hover:text-blue-600 flex flex-col items-center text-gray-600 dark:text-gray-300">
+      <i data-feather="search" class="w-6 h-6"></i>
+      <span class="text-xs">Search</span>
+    </a>
+
+    {% endif %}
+    <!-- User -->
+    {% if user.is_authenticated and request.resolver_match.url_name != "admin_page" and  request.resolver_match.url_name != "index" %}
+    <a
+     {% block user_block2 %}
+        href="{% url 'khata:index'  %}"
+{% endblock user_block2 %}
+      class="hover:text-blue-600 flex flex-col items-center text-gray-600 dark:text-gray-200">
+      <i data-feather="user" class="w-6 h-6"></i>
+      <span class="text-xs">Profile</span>
+    </a>
+
+    {% endif %}
+  </div>
+
+  <script>
+    feather.replace()
+
+    // Add toggle for plus button (mobile footer)
+    document.addEventListener("DOMContentLoaded", () => {
+      const plusBtn = document.getElementById("remove_form_hidden_plus");
+      if (plusBtn) {
+        plusBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          const form = document.getElementById("form_plate");
+          if (form) {
+            form.classList.toggle("hidden");
+          }
+        });
+      }
+      const searchBtn = document.getElementById("remove_form_hidden_plus2");
+      const searchBtn_1 = document.getElementById("remove_form_hidden_plus2_1");
+      if (searchBtn || searchBtn_1)  {
+        searchBtn_1.addEventListener("click", (e) => {
+          e.preventDefault();
+          const form2 = document.getElementById("form_plate2");
+          if (form2) {
+            form2.classList.toggle("hidden");
+          }
+        });
+        searchBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          const form2 = document.getElementById("form_plate2");
+          if (form2) {
+            form2.classList.toggle("hidden");
+          }
+        });
+      }
+      
+    });
+  </script>
+
+
+  <script>
+
+    const priceInput = document.getElementById("priceInput");
+
+    priceInput.addEventListener("input", function () {
+      let val = priceInput.value;
+
+      if (/^[0-9+\-*/\s]+$/.test(val)) {
+        try {
+          let result = Function("return " + val)();
+
+          if (!isNaN(result)) {
+            priceInput.dataset.calculated = result; // store actual calculation
+          }
+        } catch (e) {
+        }
+      }
+    });
+
+    priceInput.addEventListener("blur", function () {
+      if (priceInput.dataset.calculated) {
+        priceInput.value = priceInput.dataset.calculated;
+      }
+    });
+  </script>
+
+</body>
+
+</html>

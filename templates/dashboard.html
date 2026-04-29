@@ -1,0 +1,295 @@
+{% extends "index.html" %}
+{% block user_block %}
+        href="{% url 'khata:profile' group_id %}"
+{% endblock user_block %}
+{% block user_block2 %}
+        href="{% url 'khata:profile' group_id %}"
+{% endblock user_block2 %}
+
+{% block content %}
+<div class="hidden md:flex flex-row items-center justify-between pt-12 mb-6 gap-3">
+  <h3 class="text-3xl dark:text-gray-50  font-semibold">Dashboard</h3>
+  {% if user.is_authenticated  %}
+  <a id="remove_form_hidden" class=" rounded-xl px-4 py-3 text-white md:text-lg text-md
+                       bg-indigo-600/90 hover:bg-indigo-600 active:bg-indigo-700
+                       shadow-lg shadow-indigo-600/20 cursor-pointer">
+    Add Expense
+  </a>
+  {% else %}
+  <a href="{% url 'khata:login' %}" class=" rounded-xl px-4 py-3 text-white text-lg sm:text-xl
+                       bg-indigo-600/90 hover:bg-indigo-600 active:bg-indigo-700
+                       shadow-lg shadow-indigo-600/20 cursor-pointer">
+    Add Expense
+  </a>
+  {% endif %}
+</div>
+
+<div class="grid grid-cols-1 md:pt-0 pt-12 lg:grid-cols-2 gap-6 mb-16">
+  <!-- Balances Card -->
+  <div class="bg-white dark:bg-gray-900 dark:text-gray-200 lg:min-h-[50vh]  shadow rounded-lg">
+    <div class="border-b px-4 py-2 text-2xl font-medium dark:text-gray-200 text-gray-700">
+      <h1 class="lg:text-4xl" >{{group_name | capfirst}}<span class="text-sm" >(group)</span></h1> 
+      {% if user_is_admin %}
+      <div class="flex justify-end" >
+        <a href="{% url 'khata:admin_page' group_id %}" class="flex rounded-xl px-4 md:py-3 py-2 text-white text-lg text-sm
+                       bg-indigo-600/90 hover:bg-indigo-600 active:bg-indigo-700
+                       shadow-lg shadow-indigo-600/20 cursor-pointer" ><i data-feather="user" class="w-6 h-6"></i> Admin Panel</a>
+      </div>
+      {% endif %}
+      <span
+        class="text-sm">( {{ start_date }} : {{ today_date }} )</span> </div>
+    <div class="p-4 max-h-[40vh]   overflow-y-auto">
+      <!--      <form method="POST" action="{% url 'khata:add_expense' group_id %}"> -->
+      <!--   <form method="POST" id="expenseForm" action="{% url 'khata:equalShareSplitor' group_id %}"> -->
+      <form method="POST" id="expenseForm" action="{% url 'khata:add_expense' group_id %}">
+        {% csrf_token %}
+
+        <table class="w-full text-sm text-left border-collapse">
+          <thead>
+            <tr class="border-b dark:text-gray-200  text-gray-600">
+              <th class="py-2 px-2">Select</th>
+              <th class="py-2 px-2">User</th>
+              <th class="py-2 px-2">Balance (₹)</th>
+              <th class="py-2 px-2">Status</th>
+            </tr>
+          </thead>
+          <tbody id="userTable">
+            {% for u,b in online_users %}
+            <tr class="border-b">
+              <td class="py-2 px-2">
+                {% if u.profile.is_online %}
+                {% if u.id == user.id %}
+                <input type="checkbox" name="userss" class="user-checkbox" hidden value="{{ u.id }}" checked><input
+                  type="checkbox" name="" id="" disabled checked>
+                {% else %}
+                <input type="checkbox" name="userss" class="user-checkbox" value="{{ u.id }}" checked>
+                {% endif %}
+                {% else %}
+                <input type="checkbox" name="userss" class="user-checkbox" value="{{ u.id }}" disabled checked>
+
+                {% endif %}
+              </td>
+              {% if u.profile.is_online %}
+              <td class="py-2 px-2">{{ u.username|capfirst }}</td>
+              {% else %}
+              <td class="py-2 text-gray-500 px-2">{{ u.username|capfirst }}</td>
+              {% endif %}
+              <td class="py-2 px-2">
+                {% if b.balance > 0 %}
+                {% if u.profile.is_online %}
+                <span class="text-green-600 font-semibold">+{{ b.balance }}</span>
+                {% else %}
+                <span class="text-green-300 font-semibold">+{{ b.balance }}</span>
+                {% endif %}
+                {% elif b.balance < 0 %}
+                 {% if u.profile.is_online %}
+                  <span class="text-red-600 font-semibold">{{b.balance }}</span>
+                  {% else %}
+                  <span class="text-red-300 font-semibold">{{ b.balance }}</span>
+                  {% endif %}
+                  {% else %}
+                  <span class="text-gray-600">0</span>
+                  {% endif %}
+              </td>
+              <td class="py-2 px-2">
+                {% if u.profile.is_online %}
+                <span class="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">Active</span>
+                {% else %}
+                <span class="px-2 py-1 text-xs bg-gray-200 text-red-600 rounded">Offline</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <!--Add expense Overlay -->
+        <div id="form_plate" class="fixed inset-0 z-50  hidden flex items-start pt-5 justify-center p-4
+            bg-slate-900/20 backdrop-blur-sm">
+          <!-- Glass card -->
+          <div class="w-full max-w-lg md:max-w-2xl rounded-2xl
+              bg-white dark:bg-gray-900
+              backdrop-blur-xl backdrop-saturate-150
+              border border-white/20 dark:border-white/10
+              shadow-2xl ring-1 ring-black/5 p-6">
+
+
+            <!-- Amount -->
+            <div class="w-full mx-20 text-lg ">Date: {{today_date}}
+              <button type="button" id="toggleActionBtn"
+                class="px-3 block md:inline py-1 text-center text-sm rounded-lg border-[3px] border-indigo-700 bg-indigo-700 text-white transition duration-300">
+                Mode: Add Expense
+              </button>
+            </div>
+            <div>
+              <label class="block text-base sm:text-lg font-medium">Amount (₹)</label>
+              <input type="text" id="priceInput" name="price" placeholder="Amount: 10+78+35+...." class="w-full rounded-xl border border-black/30 bg-gray-100 
+                dark:bg-black/20 dark:border-white/30
+                px-4 py-3 text-base sm:text-lg
+                placeholder-gray-500 outline-none
+                focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/60" required>
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label class="block text-base sm:text-lg font-medium">Description</label>
+              <input type="text" name="desc" placeholder="Ex: Movie, Dinner, Shopping..." class="w-full rounded-xl border border-black/30 bg-gray-100
+                      dark:bg-black/10 dark:border-white/30
+                      px-4 py-3 text-base sm:text-lg
+                      placeholder-gray-500 outline-none
+                      focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/60" required>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-3 mt-5 ">
+              <button type="submit" id="submitBtn" class="flex-1 rounded-xl px-4 py-3 text-white text-lg sm:text-xl
+                       bg-indigo-600/90 hover:bg-indigo-600 active:bg-indigo-700
+                       shadow-lg shadow-indigo-600/20">
+                Add & Split
+              </button>
+              <a href="{% url 'khata:home' group_id %}" class="flex-1 rounded-xl px-4 py-3 text-white text-center text-lg sm:text-xl
+                  bg-rose-600/90 hover:bg-rose-600 active:bg-rose-700
+                  shadow-lg shadow-rose-600/20">
+                Cancel
+              </a>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <!--Download Overlay -->
+      <form method="post" action="{% url 'khata:download' group_id %}">
+        {% csrf_token %}
+        <div id="form_plate2" class="hidden fixed inset-0 z-50 flex items-start pt-5 justify-center p-4
+            bg-slate-900/20 backdrop-blur-sm">
+          <!-- Glass card -->
+          <div class="w-full max-w-lg md:max-w-2xl rounded-2xl
+              bg-white dark:bg-gray-900
+              backdrop-blur-xl backdrop-saturate-150
+              border border-white/20 dark:border-white/10
+              shadow-2xl ring-1 ring-black/5 p-6">
+
+
+            <!-- Amount -->
+            <div class="w-full mx-20 text-lg ">Date: {{today_date}}</div>
+            <div>
+              <label class="block text-base sm:text-lg font-medium">From</label>
+              <input type="date" name="from" placeholder="DD/MM/YY" class="w-full rounded-xl border border-black/30 bg-gray-100 
+                dark:bg-black/60 dark:border-black/10
+                px-4 py-3 text-base sm:text-lg
+                placeholder-gray-500  outline-none
+                dark:text-white text-black 
+                focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/60" required>
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label class="block text-base sm:text-lg font-medium">TO</label>
+              <input type="date" name="to" placeholder="Ex: Movie, Dinner, Shopping..." class="w-full rounded-xl border border-black/30 bg-gray-100
+                      dark:bg-black/60 dark:border-black/10
+                      px-4 py-3 text-base sm:text-lg
+                      placeholder-gray-500 outline-none
+                      dark:text-white text-black 
+                      focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/60" required>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-3 mt-5 ">
+              <button type="submit" class="flex-1 rounded-xl px-4 py-3 text-white text-lg sm:text-xl
+                       bg-indigo-600/90 hover:bg-indigo-600 active:bg-indigo-700
+                       shadow-lg shadow-indigo-600/20">
+                Fetch
+              </button>
+              <a href="{% url 'khata:home' group_id %}" class="flex-1 rounded-xl px-4 py-3 text-white text-center text-lg sm:text-xl
+                  bg-rose-600/90 hover:bg-rose-600 active:bg-rose-700
+                  shadow-lg shadow-rose-600/20">
+                Cancel
+              </a>
+            </div>
+          </div>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- Recent Expenses Card -->
+  <div class="bg-white shadow rounded-lg dark:bg-gray-900 dark:text-gray-200 ">
+    <div class="border-b px-4 py-2 md:font-medium  text-lg dark:text-gray-200 dark:bg-gray-900 rounded text-gray-700">
+      Recent Expenses</div>
+    <div class="p-4 max-h-[50vh] md:h-[70vh] overflow-y-auto">
+      <ul class="divide-y divide-gray-200">
+        {% for exp in objs %}
+        <li class="py-3 text-sm md:text-lg ">
+          <strong class=" dark:text-gray-200  text-gray-800">{{ exp.payer|capfirst }}</strong>
+          paid <span class="font-semibold">₹{{ exp.amount }}</span> — {{ exp.description }}
+          <br />
+          <small class="text-gray-500 dark:text-gray-400 text-[9px] lg:text-sm">
+            {{ exp.date }} {{ exp.times }}
+            <span>(
+              {% for s in exp.spilts.all %}
+              <span class="font-semibold text-gray-700 dark:text-gray-400">{{ s.user.username|capfirst }}</span>: ₹{{ s.share }}
+              {% if not forloop.last %}, {% endif %}
+              {% empty %}
+              (no splits)
+              {% endfor %})
+            </span>
+          </small>
+        </li>
+        {% empty %}
+        <li class="py-3 text-gray-500">No expenses yet.</li>
+        {% endfor %}
+      </ul>
+
+    </div>
+  </div>
+  {% if total_balance >  0 %}
+  
+    <div class="w-full max-w-lg mx-auto mb-4 p-4 rounded-xl 
+              bg-indigo-50 dark:bg-gray-800 
+              border border-indigo-200 dark:border-indigo-700 
+              shadow">
+      <h2 class="text-lg font-semibold text-indigo-700 dark:text-indigo-300">
+        🏠 Total 
+      </h2>
+      <p class="text-xl font-bold text-gray-900 dark:text-white">
+        ₹{{ total_balance }}
+      </p>
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        Per User (active): ₹{{ rent_per_user }} ({% for r in rent_user_count %} <span
+          class="font-semibold">{{r.username}},</span> {% endfor %})
+      </p>
+    </div>
+  {% endif %}
+</div>
+<script>
+  const btn = document.getElementById("remove_form_hidden");
+  btn.addEventListener("click", () => {
+    const form = document.getElementById("form_plate");
+    form.classList.toggle("hidden");
+  });
+
+</script>
+<script>
+  const form = document.getElementById("expenseForm");
+  const toggleBtn = document.getElementById("toggleActionBtn");
+  const submitBtn = document.getElementById("submitBtn");
+
+  let isAddExpense = true; // default
+
+
+  toggleBtn.addEventListener("click", () => {
+    isAddExpense = !isAddExpense;
+
+    if (isAddExpense) {
+      form.action = "{% url 'khata:add_expense' group_id %}";
+      submitBtn.textContent = "Add & Split";
+      toggleBtn.textContent = "Mode: Add Expense";
+    } else {
+      form.action = "{% url 'khata:equalShareSplitor' group_id %}";
+      submitBtn.textContent = "Share";
+      toggleBtn.textContent = "Mode: Equal Share";
+    }
+  });
+</script>
+{% endblock %}

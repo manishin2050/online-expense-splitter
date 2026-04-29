@@ -1,0 +1,173 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="bg-white mt-12 dark:bg-gray-900 shadow rounded-lg p-6">
+  <!-- Header -->
+  <div class="flex items-center gap-3 border-b pb-4 mb-4">
+    <i data-feather="user" class="w-8 h-8 text-indigo-600 dark:text-gray-200"></i>
+    <h2 class="text-2xl font-semibold "><span class="dark:text-indigo-600 font-bold">{{ user.username|capfirst }}</span></h2>
+    <h6 class="dark:text-white text-sm" >( {{group}} )</h6>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Total Expense -->
+    <div class="p-4 bg-indigo-50 dark:bg-indigo-900/40 rounded-xl shadow flex items-center justify-between">
+      <div>
+        <h3 class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Expense</h3>
+        <p class="text-2xl font-bold text-indigo-700 dark:text-indigo-300">
+          ₹{{ total_expense }}
+        </p>
+      </div>
+      <i data-feather="plus" class="w-6 h-6 text-indigo-600 dark:text-indigo-400"></i>
+    </div>
+
+    <!-- Lent Amount -->
+    <div class="p-4 bg-green-50 dark:bg-green-900/40 rounded-xl shadow flex items-center justify-between">
+      <div>
+        <h3 class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Shopping Expense</h3>
+        {% if total_Shopping_expense > 0 %}
+          <p class="text-2xl font-bold text-green-700 dark:text-green-300">
+            ₹{{ total_Shopping_expense }}
+          </p>
+        {% else %}
+          <p class="text-sm text-gray-500 dark:text-gray-400">Not any Shopping yet...</p>
+        {% endif %}
+      </div>
+      <i data-feather="plus" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
+    </div>
+  </div>
+  <div class="p-4 my-4 rounded-2xl shadow bg-white dark:bg-gray-800 text-center">
+  <h3 class="text-gray-600 dark:text-gray-300 text-sm">Expense + Shopping</h3>
+  <p class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+    ₹{{ total_expense|add:total_Shopping_expense }}
+  </p>
+</div>
+
+  <!-- All User Expense -->
+ <table class="w-full text-sm text-left border-collapse">
+          <thead>
+            <tr class="border-b dark:text-gray-200  text-gray-600">
+              
+              <th class="py-2 px-2">User</th>
+              <th class="py-2 px-2">Total Expense (₹)</th>
+              <th class="py-2 px-2">Status</th>
+            </tr>
+          </thead>
+          <tbody id="userTable">
+  {% for u in all_user_expense %}
+  <tr class="border-b">
+    <td class="py-2 text-black dark:text-gray-200 px-2">{{ u.username|capfirst }}</td>
+    <td class="py-2 px-2">
+      {% if u.balance %}
+        {% if u.balance > 0 %}
+        <span class="text-green-600 font-semibold">+{{ u.balance }}</span>
+        {% else %}
+        <span class="text-red-600 font-semibold">{{ u.balance }}</span>
+        {% endif %}
+      {% else %}
+        <span class="text-gray-600">0</span>
+      {% endif %}
+    </td>
+    <td class="py-2 px-2">
+      {% if u.profile.is_online %}
+      <span class="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">Active</span>
+      {% else %}
+      <span class="px-2 py-1 text-xs bg-gray-200 text-red-600 rounded">Offline</span>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
+
+        </table>
+
+
+</div>
+<!-- Recent Expenses Card -->
+  <div class="bg-indigo-50 dark:bg-indigo-900/40 shadow  mt-5 rounded-lg  dark:text-gray-200 ">
+    <div class="border-b px-4 py-2 md:font-medium  text-lg dark:text-gray-200  rounded text-gray-700">
+     Your Recent Expenses</div>
+    <div class="p-4 max-h-[50vh] md:h-[70vh] overflow-y-auto">
+      <ul class="divide-y divide-gray-200">
+        {% for exp in recent_expenses %}
+        <li class="py-3 text-sm md:text-lg ">
+          <strong class=" dark:text-gray-200  text-gray-800">You</strong>
+          paid <span class="font-semibold">₹{{ exp.amount }}</span> — {{ exp.description }}
+          <br />
+          <small class="text-gray-500 dark:text-gray-400 text-[9px] lg:text-sm">
+            {{ exp.date }} {{ exp.times }}
+            <span>(
+              {% for s in exp.spilts.all %}
+              <span class="font-semibold text-gray-700 dark:text-gray-400">{{ s.user.username|capfirst }}</span>: ₹{{ s.share }}
+              {% if not forloop.last %}, {% endif %}
+              {% empty %}
+              (no splits)
+              {% endfor %})
+            </span>
+          </small>
+        </li>
+        {% empty %}
+        <li class="py-3 text-gray-500">No expenses yet.</li>
+        {% endfor %}
+      </ul>
+
+    </div>
+  </div>
+<!-- Recent shopping Card -->
+  <div class="bg-green-50 dark:bg-green-900/40 shadow  mt-5 rounded-lg  dark:text-gray-200 ">
+    <div class="border-b px-4 py-2 md:font-medium  text-lg dark:text-gray-200  rounded text-gray-700">
+      Your Shopping Expense</div>
+    <div class="p-4 max-h-[50vh] md:h-[70vh] overflow-y-auto">
+      <ul class="divide-y divide-gray-200">
+        {% for exp in shopping_expenses %}
+        <li class="py-3 text-sm md:text-lg ">
+          <strong class=" dark:text-gray-200  text-gray-800">You</strong>
+          paid <span class="font-semibold">₹{{ exp.amount }}</span> — {{ exp.desc }}
+          <br />
+          <small class="text-gray-500 dark:text-gray-400 text-[9px] lg:text-sm">
+            {{ exp.date }} {{ exp.times }}
+           
+          </small>
+        </li>
+        {% empty %}
+        <li class="py-3 text-gray-500">No expenses yet.</li>
+        {% endfor %}
+      </ul>
+
+    </div>
+  </div>
+
+
+<!-- Recent Bills -->
+  <div class="bg-red-50 dark:bg-red-900/40 shadow mb-20 mt-5 rounded-lg  dark:text-gray-200 ">
+    <div class="border-b px-4 py-2 md:font-medium  text-lg dark:text-gray-200  rounded text-gray-700">
+      Bills (electricity,cylinder,...)</div>
+    <div class="p-4 max-h-[50vh] md:h-[70vh] overflow-y-auto">
+      <ul class="divide-y divide-gray-200">
+        {% for exp in equal_share_expenses %}
+        <li class="py-3 text-sm md:text-lg ">
+          <strong class=" dark:text-gray-200  text-gray-800">{{ exp.user }}</strong>
+          is saying  <span>(
+              {% for s in exp.equalsharessplit.all %}
+              <span class="font-semibold text-gray-700 dark:text-gray-400">{{ s.user.username|capfirst }}</span>: ₹{{ s.amount }}
+              {% if not forloop.last %}, {% endif %}
+              {% empty %}
+              (no splits)
+              {% endfor %})
+            </span> will pay <span class="font-semibold">₹{{ exp.amount }}</span> for {{ exp.desc }}
+          <br />
+          <small class="text-gray-500 dark:text-gray-400 text-[9px] lg:text-sm">
+            {{ exp.date }} {{ exp.times }}
+           
+          </small>
+        </li>
+        {% empty %}
+        <li class="py-3 text-gray-500">No expenses yet.</li>
+        {% endfor %}
+      </ul>
+
+    </div>
+  </div>
+
+{% endblock %}

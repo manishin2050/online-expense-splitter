@@ -1,0 +1,123 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="hidden md:flex flex-row items-center justify-between pt-12 mb-6 gap-3">
+  <h3 class="text-3xl dark:text-gray-50  font-semibold">Dashboard</h3>
+  {% if user.is_authenticated and request.resolver_match.url_name != "admin_page" %}
+  <a id="remove_form_hidden" class=" rounded-xl px-4 py-3 text-white md:text-lg text-md
+                       bg-indigo-600/90 hover:bg-indigo-600 active:bg-indigo-700
+                       shadow-lg shadow-indigo-600/20 cursor-pointer">
+    Add Expense
+  </a>
+  {% elif  request.resolver_match.url_name != "admin_page" %}
+  <a href="{% url 'khata:login' %}" class=" rounded-xl px-4 py-3 text-white text-lg sm:text-xl
+                       bg-indigo-600/90 hover:bg-indigo-600 active:bg-indigo-700
+                       shadow-lg shadow-indigo-600/20 cursor-pointer">
+    Add Expense
+  </a>
+  {% endif %}
+</div>
+<div class="pt-12">
+  <a href="{% url 'khata:home' group_id %}" class=" rounded-xl px-4 py-3 text-white text-lg sm:text-xl
+                       bg-indigo-600/90 hover:bg-indigo-600 active:bg-indigo-700
+                       shadow-lg shadow-indigo-600/20 cursor-pointer">
+    Back
+  </a>
+</div>
+<div class="grid grid-cols-1  pt-5 lg:grid-cols-2 gap-6 mb-16">
+  <!-- Balances Card -->
+  <div class="bg-white dark:bg-gray-900 dark:text-gray-200 lg:min-h-[50vh]  shadow rounded-lg">
+    <div class="border-b px-4 py-2 text-2xl font-medium dark:text-gray-200 text-gray-700">
+      <h1 class="lg:text-4xl" >{{group_name | capfirst}}<span class="text-sm" >(group)</span></h1> 
+      <div class="flex justify-end" >
+        <a href="{% url 'khata:add_member' group_id  %}" class="rounded-xl flex px-4 md:py-3 py-2 text-white text-lg sm:text-xl
+                       bg-indigo-600/90 hover:bg-indigo-600 active:bg-indigo-700
+                       shadow-lg shadow-indigo-600/20 cursor-pointer" ><i data-feather="plus" class="w-6 h-6"></i> Action</a>
+      </div>
+      <span
+        class="text-sm">( {{ start_date }} : {{ today_date }} )</span> </div>
+    <div class="p-4 max-h-[40vh]   overflow-y-auto">
+      <!--      <form method="POST" action="{% url 'khata:add_expense' group_id %}"> -->
+      <!--   <form method="POST" id="expenseForm" action="{% url 'khata:equalShareSplitor' group_id %}"> -->
+      <form method="POST" id="expenseForm" action="{% url 'khata:add_expense' group_id %}">
+        {% csrf_token %}
+
+        <table class="w-full text-sm text-left border-collapse">
+          <thead>
+            <tr class="border-b dark:text-gray-200  text-gray-600">
+              <th class="py-2 px-2">User</th>
+              <th class="py-2 px-2">Status</th>
+              <th class="py-2 px-2">Action</th>
+            </tr>
+          </thead>
+          <tbody id="userTable">
+            {% for u,b in online_users %}
+            <tr class="border-b">
+              
+              {% if u.profile.is_online %}
+              <td class="py-2 px-2">{{ u.username|capfirst }}</td>
+              {% else %}
+              <td class="py-2 text-gray-500 px-2">{{ u.username|capfirst }}</td>
+              {% endif %}
+           
+              <td class="py-2 px-2">
+                {% if u.profile.is_online %}
+                <span class="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">Active</span>
+                {% else %}
+                <span class="px-2 py-1 text-xs bg-gray-200 text-red-600 rounded">Offline</span>
+                {% endif %}
+              </td>
+                <td  class="py-2 px-2">
+                  <form action="{% url 'khata:remove_member' group_id u.id %}" method="POST">
+                    {% csrf_token %}
+                     <button type="submit" class="px-2 py-1 text-xs bg-green-100 cursor-pointer text-red-700 rounded">Remove User</button>
+                     <!-- <button type="submit" class="px-2 py-1 text-xs bg-green-100 cursor-pointer text-red-700 rounded">Remove User</button> --- IGNORE --- -->
+                   </form>
+               
+              </td>
+
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+       
+      </form>
+
+     
+    </div>
+  </div>
+
+  <!-- Recent Expenses Card -->
+  <div class="bg-white shadow rounded-lg dark:bg-gray-900 dark:text-gray-200 ">
+    <div class="border-b px-4 py-2 md:font-medium  text-lg dark:text-gray-200 dark:bg-gray-900 rounded text-gray-700">
+      Recent Expenses</div>
+    <div class="p-4 max-h-[50vh] md:h-[70vh] overflow-y-auto">
+      <ul class="divide-y divide-gray-200">
+        {% for exp in objs %}
+        <li onclick="window.location.href='{% url 'khata:edit_expense' exp.id %}'"    class="cursor-pointer py-3 text-sm md:text-lg ">
+          <strong class="flex dark:text-gray-200  text-gray-800"><i data-feather="edit" class="text-red-300 h-6 w-6">ff</i> {{ exp.payer|capfirst }}</strong>
+          paid <span class="font-semibold">₹{{ exp.amount }}</span> — {{ exp.description }} 
+          <br />
+          <small class="text-gray-500 dark:text-gray-400 text-[9px] lg:text-sm">
+            {{ exp.date }} {{ exp.times }}
+            <span>(
+              {% for s in exp.spilts.all %}
+              <span class="font-semibold text-gray-700 dark:text-gray-400">{{ s.user.username|capfirst }}</span>: ₹{{ s.share }}
+              {% if not forloop.last %}, {% endif %}
+              {% empty %}
+              (no splits)
+              {% endfor %})
+            </span>
+          </small>
+        </li>
+        {% empty %}
+        <li class="py-3 text-gray-500">No expenses yet.</li>
+        {% endfor %}
+      </ul>
+
+    </div>
+  </div>
+  
+</div>
+
+{% endblock %}

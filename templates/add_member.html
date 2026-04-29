@@ -1,0 +1,55 @@
+{% extends "login.html" %}
+{% block user_form %}
+   <!-- Heading -->
+      <div class="mb-6 text-center">
+        <div class="mx-auto mb-3 h-12 w-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="h-6 w-6" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v.75H5.25A2.25 2.25 0 003 9.75v9A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75v-9a2.25 2.25 0 00-2.25-2.25h-1.5v-.75A5.25 5.25 0 0012 1.5zm3.75 6V6.75A3.75 3.75 0 0012 3a3.75 3.75 0 00-3.75 3.75V7.5h7.5z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <h1 id="formTitle" class="text-xl font-semibold text-gray-900 dark:text-white">Greeting...</h1>
+        <p id="formSubtitle" class="mt-1 text-sm text-gray-500 dark:text-gray-400">Grow Your Family</p>
+    </div>
+    
+    <!-- Alert -->
+    <div id="alert" class="hidden mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-300">{{ error }}</div>
+    
+    <!-- Login Form -->
+    <form id="loginForm" action="{% url 'khata:add_member' group_id %}" method="POST" class="space-y-5">
+        {% csrf_token %}
+        <div>
+            <label for="groupname" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Group Name</label>
+            <input id="groupname" name="name" value="{{group_name}}" type="text" required class="w-full rounded-xl border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-gray-900 bg-gray-100 dark:text-gray-100" placeholder="Enter Name"/>
+        </div>
+        <div>
+            <label for="rent" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Rent</label>
+            <input id="rent" name="rent" value="{{group_rent}}" type="number"  class="w-full rounded-xl border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-gray-900 bg-gray-100 dark:text-gray-100" placeholder="999"/>
+        </div>
+        <div>
+            <label for="rent" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Month Start Day</label>
+            <input id="rent" name="start_day" value="{{group_start_day}}" type="number" max="31" min="1"  class="w-full rounded-xl border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-gray-900 bg-gray-100 dark:text-gray-100" placeholder="1-31"/>
+        </div>
+         <div class="mb-4">
+            <label class="block mb-2 font-semibold text-gray-700 dark:text-gray-200">Add Members</label>
+
+            <div class="max-h-32 overflow-y-auto border rounded-lg p-3 mb-2">
+                {% if users %}
+                {% for user in users %}
+                <label class="flex items-center gap-2 mb-2">
+                    <input type="checkbox" name="users" value="{{ user.id }}">
+                    <span class="text-gray-700 dark:text-gray-200">{{ user.username }}</span>
+                </label>
+                {% endfor %}
+                {% else %}
+                <p class="text-gray-500 dark:text-gray-400">No users available to add.</p>
+                {% endif %}
+            </div>
+        <button type="submit" class="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-white font-medium shadow hover:bg-indigo-500">Update Group</button>
+        <button type="button" onclick="window.location.href='{% url 'khata:admin_page' group_id %}'"  class="w-full mt-3 button rounded-xl bg-indigo-400 px-4 py-2.5 text-white font-medium shadow hover:bg-indigo-500"> Cancel</button>
+    </form>
+    <form id="" action="{% url 'khata:delete_group' group_id %}" method="POST" class="space-y-5">
+        {% csrf_token %}
+
+    <button type="submit" class="w-full mt-3 button rounded-xl bg-red-500 px-4 py-2.5 text-white font-medium shadow hover:bg-red-400"> Delete Group</button>
+    </form>
+{% endblock %}

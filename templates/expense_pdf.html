@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial; }
+    .split { font-size: 0.9em; color: #555; }
+  </style>
+</head>
+<body>
+    <h1>{{group_name}}</h1>
+  <h2>Expenses {{start_date}} to {{end_date}} </h2>
+  {% for exp in objs %}
+    <p>
+      <strong>{{ exp.payer }}</strong> paid ₹{{ exp.amount }} — {{ exp.description }}<br>
+      <small>{{ exp.date }} {{ exp.times }}</small>
+      <br>
+      <span class="split">
+        {% for s in exp.spilts.all %}
+          {{ s.user.username }}: ₹{{ s.share }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </span>
+    </p>
+  {% endfor %}
+</body>
+</html>   

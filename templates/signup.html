@@ -1,0 +1,91 @@
+{% extends "login.html" %}
+
+{% block user_form %}
+ <!-- Heading -->
+      <div class="mb-6 text-center">
+        <div class="mx-auto mb-3 h-12 w-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="h-6 w-6" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v.75H5.25A2.25 2.25 0 003 9.75v9A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75v-9a2.25 2.25 0 00-2.25-2.25h-1.5v-.75A5.25 5.25 0 0012 1.5zm3.75 6V6.75A3.75 3.75 0 0012 3a3.75 3.75 0 00-3.75 3.75V7.5h7.5z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <h1 id="formTitle" class="text-xl font-semibold text-gray-900 dark:text-white">Welcome </h1>
+        <p id="formSubtitle" class="mt-1 text-sm text-gray-500 dark:text-gray-400">Please sign up    to continue</p>
+      </div>
+
+      <!-- Alert -->
+      <div id="alert" class="hidden mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-300">{{error}}</div>
+      
+<!-- Signup Form (hidden by default) -->
+<form id="signupForm" action="{% url 'khata:signup' %}" method="POST" class="space-y-5">
+  {% csrf_token %}
+  
+  <div>
+    <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Username</label>
+    <input id="username" name="username" type="text" required 
+      class="w-full rounded-xl border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 bg-gray-100" 
+      placeholder="your_username"/>
+  </div>
+
+  <div>
+    <label for="signupEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Email</label>
+    <input id="signupEmail" name="email" type="email" required 
+      class="w-full rounded-xl border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 bg-gray-100" 
+      placeholder="you@example.com"/>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3">
+    <div>
+      <label for="firstName" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">First Name</label>
+      <input id="firstName" name="first_name" type="text" required 
+        class="w-full rounded-xl border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 bg-gray-100" 
+        placeholder="John"/>
+    </div>
+    <div>
+      <label for="lastName" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Last Name</label>
+      <input id="lastName" name="last_name" type="text" required 
+        class="w-full rounded-xl border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 bg-gray-100" 
+        placeholder="Doe"/>
+    </div>
+  </div>
+
+        <div class="relative">
+          <label for="signupPassword1" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            Password
+          </label>
+
+          <!-- Eye icon (left side) -->
+          <span onclick="togglePassword('signupPassword1','eyeIcon2')" class="absolute right-3 top-9 h-5 w-5 cursor-pointer text-gray-500">
+            <i id="eyeIcon2" data-feather="eye" class="w-5 text-black h-5"></i>
+          </span>
+
+          <!-- Input -->
+          <input id="signupPassword1" name="password1" type="password" required class="w-full rounded-xl border-gray-300 pr-10 pl-3 py-2 
+           dark:border-gray-700 dark:bg-gray-900 bg-gray-100 
+           dark:text-gray-100" placeholder="••••••••" />
+        </div>
+
+        <div class="relative">
+          <label for="signupPassword2" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            Password
+          </label>
+
+          <!-- Eye icon (left side) -->
+          <span onclick="togglePassword('signupPassword2','eyeIcon3')" class="absolute right-3 top-9 h-5 w-5 cursor-pointer text-gray-500">
+            <i id="eyeIcon3" data-feather="eye" class="w-5 text-black h-5"></i>
+          </span>
+
+          <!-- Input -->
+          <input id="signupPassword2" name="password2" type="password" required class="w-full rounded-xl border-gray-300 pr-10 pl-3 py-2 
+           dark:border-gray-700 dark:bg-gray-900 bg-gray-100 
+           dark:text-gray-100" placeholder="••••••••" />
+        </div>
+  <button type="submit" 
+    class="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-white font-medium shadow hover:bg-indigo-500">
+    Sign up
+  </button>
+</form>
+      <p class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+        <a href="{% url 'khata:login' %}" id="toggleText">Already have an account</a> 
+        <a href="{% url 'khata:login' %}" id="toggleLink" class="font-medium text-lg text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Sign in</a>
+      </p>
+{% endblock user_form %}

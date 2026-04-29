@@ -1,0 +1,55 @@
+{% extends "index.html" %}
+{% block content %}
+<form action="{% url 'khata:shopping' %}" method="POST" class="relative">
+    {% csrf_token %}
+        <!--Add expense Overlay -->
+        <div id="form_plate" class="fixed inset-0 z-50 dark:text-gray-200 flex items-start pt-5 justify-center p-4
+            bg-slate-900/20 backdrop-blur-sm">
+          <!-- Glass card -->
+          <div class="w-full max-w-lg md:max-w-2xl rounded-2xl
+              bg-white dark:bg-gray-900
+              backdrop-blur-xl backdrop-saturate-150
+              border border-white/20 dark:border-white/10
+              shadow-2xl ring-1 ring-black/5 p-6">
+
+
+            <!-- Amount -->
+            <div class="w-full mb-2 text-lg ">Date: {{today_date}}
+             
+            </div>
+            <div>
+              <label class="block text-base sm:text-lg font-medium">Amount (₹)</label>
+              <input type="text" id="priceInput" name="price" placeholder="Amount: 10+78+35+...." class="w-full rounded-xl border border-black/30 bg-gray-100 
+                dark:bg-black/10 dark:border-black/10
+                px-4 py-3 text-base sm:text-lg
+                placeholder-gray-500 outline-none
+                focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/60" required>
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label class="block text-base sm:text-lg font-medium">Description</label>
+              <input type="text" name="desc" placeholder="Ex: Movie, Dinner, Shopping..." class="w-full rounded-xl border border-black/30 bg-gray-100
+                      dark:bg-black/10 dark:border-black/10
+                      px-4 py-3 text-base sm:text-lg
+                      placeholder-gray-500 outline-none
+                      focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/60" required>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-3 mt-5 ">
+              <button type="submit" id="submitBtn" class="flex-1 rounded-xl px-4 py-3 text-white text-lg sm:text-xl
+                       bg-indigo-600/90 hover:bg-indigo-600 active:bg-indigo-700
+                       shadow-lg shadow-indigo-600/20">
+                shopping
+              </button>
+              <a href="{% url 'khata:index' %}" class="flex-1 rounded-xl px-4 py-3 text-white text-center text-lg sm:text-xl
+                  bg-rose-600/90 hover:bg-rose-600 active:bg-rose-700
+                  shadow-lg shadow-rose-600/20">
+                Cancel
+              </a>
+            </div>
+          </div>
+        </div>
+</form>
+{% endblock content %}
