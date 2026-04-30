@@ -93,8 +93,15 @@ def home(request,group_id):
  
     if User.objects.all().count() > 0:
         today = datetime.now(asia_tz)
-        rent= Group.objects.get(id=group_id).rent
-        start_day= Group.objects.get(id=group_id).start_day
+        try:
+            group= Group.objects.get(id=group_id)
+            # print(group)
+        
+        except:
+            # print("no--------")
+            return redirect("khata:index")
+        rent= group.rent
+        start_day= group.start_day
     #     # Determine the current month and year
         current_month = today.month
         current_year = today.year
