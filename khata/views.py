@@ -488,7 +488,7 @@ def login_view(request):
         return render(request,"login.html",data)
     
 def index(request):
-    groups = Group.objects.filter(group_memberships__user_id=request.user.id)   
+    groups = Group.objects.filter(group_memberships__user_id=request.user.id).order_by("-id")   
     return render(request,"index.html",{"groups":groups})
 
 @login_required
