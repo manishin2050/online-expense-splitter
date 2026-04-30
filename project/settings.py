@@ -53,6 +53,7 @@ MIDDLEWARE = [
 
 CSRF_TRUSTED_ORIGINS = [
     "https://hisaab-kitaab-w1qm.onrender.com",
+    "https://online-expense-splitter.onrender.com"
 ]
 
 
