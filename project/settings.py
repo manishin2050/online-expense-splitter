@@ -100,7 +100,7 @@ DATABASES = {
         'PORT': '10920',
         'OPTIONS': {
             'ssl': {
-                'ca': os.path.join(PROJECT_DIR, 'certs', 'ca.pem'),  
+                'ca': str(PROJECT_DIR / 'certs' / 'ca.pem'),  
             },
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
