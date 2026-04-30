@@ -89,6 +89,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 #     }
 # }
 import os
+PROJECT_DIR = Path(__file__).resolve().parent
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -99,7 +100,7 @@ DATABASES = {
         'PORT': '10920',
         'OPTIONS': {
             'ssl': {
-                'ca': os.path.join(BASE_DIR, 'certs', 'ca.pem'),  
+                'ca': os.path.join(PROJECT_DIR, 'certs', 'ca.pem'),  
             },
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
