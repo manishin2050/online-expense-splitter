@@ -94,12 +94,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'defaultdb',
         'USER': 'avnadmin',
-        'PASSWORD': os.getenv('DB_PASSWORD'),  # अपना पासवर्ड डालें
+        'PASSWORD': os.getenv('DB_PASSWORD'), 
         'HOST': 'mysql-1ee27427-mehta787-1568.g.aivencloud.com',
         'PORT': '10920',
         'OPTIONS': {
             'ssl': {
-                'ca': '/app/certs/ca.pem',  # Render पर पथ
+                'ca': '/certs/ca.pem',  
             },
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
